@@ -1,41 +1,46 @@
-
 'use client'
 
 import { useEffect, useState } from 'react';
-import { db } from '../lib/firebase';
-import { collection, getDocs } from 'firebase/firestore';
-import { Obra } from '../types/obra';
+import { getObras } from '../services/databaseService';
+import type { Obra } from '../types/obra';
 
 export default function ObrasPage() {
   const [obras, setObras] = useState<Obra[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null); // Estado para armazenar mensagens de erro
 
   useEffect(() => {
-    async function fetchObras() {
+    async function loadObras() {
       try {
-        const querySnapshot = await getDocs(collection(db, 'obras'));
-        const obrasData: Obra[] = [];
-        querySnapshot.forEach((doc) => {
-          // Cuidado aqui: estamos assumindo que `doc.data().titulo` sempre existe e é uma string.
-          // A validação com Zod (próximo passo) vai resolver isso.
-          obrasData.push({ id: doc.id, ...(doc.data() as Omit<Obra, 'id'>) });
-        });
+        // A página agora só precisa chamar o serviço.
+        // Toda a complexidade de busca e validação está encapsulada.
+        const obrasData = await getObras();
         setObras(obrasData);
-      } catch (error) {
-        console.error('Error fetching obras: ', error);
+      } catch (err) {
+        // Se o serviço lançar um erro (ex: falha de conexão),
+        // capturamos a mensagem para exibir na UI.
+        if (err instanceof Error) {
+            setError(err.message);
+        } else {
+            setError("Ocorreu um erro desconhecido ao buscar as obras.");
+        }
+        console.error(err); // Log do erro original para fins de depuração
       } finally {
         setLoading(false);
       }
     }
 
-    fetchObras();
-  }, []);
+    loadObras();
+  }, []); // O array de dependências vazio garante que o efeito rode apenas uma vez
 
+  // Renderização condicional baseada nos estados
   if (loading) {
-    return <div>Carregando...</div>;
+    return <div>Carregando galeria de obras...</div>;
   }
 
-  console.log("LISTA DE DOCUMENTOS:", obras);
+  if (error) {
+    return <div style={{ color: 'red', padding: '20px' }}>Erro ao carregar: {error}</div>;
+  }
 
   return (
     <div>
@@ -47,7 +52,7 @@ export default function ObrasPage() {
           ))}
         </ul>
       ) : (
-        <p>O banco de dados está conectado, mas a coleção 'obras' retornou zero documentos.</p>
+        <p>Nenhuma obra encontrada. A galeria pode estar vazia ou os dados não puderam ser validados.</p>
       )}
     </div>
   );
