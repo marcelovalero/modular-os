@@ -2,57 +2,77 @@
 'use client';
 
 import { useEffect, useState } from 'react';
-import { getObras } from '../services/databaseService';
-import { SkeletonCard } from '../components/SkeletonCard';
+import { getObras, Obra } from '../services/databaseService';
+import SkeletonCard from '../components/SkeletonCard';
 
-interface Obra {
-  id: string;
-  titulo: string;
-  imagem: string;
-}
+const HeroSection = () => (
+  <section className="text-center py-20 md:py-32">
+    <div className="max-w-4xl mx-auto px-4">
+      <h1 className="text-4xl md:text-6xl font-bold tracking-tight text-white">
+        Construindo o Futuro com Excelência
+      </h1>
+      <p className="mt-4 text-lg md:text-xl text-gray-300">
+        Um portfólio de projetos que definem o padrão em engenharia, design e construção modular.
+      </p>
+    </div>
+  </section>
+);
 
-export default function Home() {
+const ObraCard = ({ obra }: { obra: Obra }) => (
+  <div className="glass-card overflow-hidden group">
+    <div className="relative w-full h-64">
+      <img 
+        src={obra.imagem} 
+        alt={obra.titulo} 
+        className="absolute inset-0 w-full h-full object-cover transform group-hover:scale-110 transition-transform duration-500 ease-in-out"
+      />
+      <div className="absolute inset-0 bg-black bg-opacity-30 group-hover:bg-opacity-10 transition-all duration-300"></div>
+    </div>
+    <div className="p-6">
+      <h3 className="text-xl font-semibold text-white">{obra.titulo}</h3>
+    </div>
+  </div>
+);
+
+export default function HomePage() {
   const [obras, setObras] = useState<Obra[]>([]);
   const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     const fetchObras = async () => {
       try {
         const obrasList = await getObras();
-        setObras(obrasList as Obra[]);
-      } catch (error) {
-        console.error("Erro ao buscar obras:", error);
+        setObras(obrasList);
+      } catch (err) {
+        setError('Não foi possível carregar as obras. Por favor, tente novamente mais tarde.');
+        console.error(err);
       } finally {
         setLoading(false);
       }
     };
-
     fetchObras();
   }, []);
 
   return (
-    <main className="flex min-h-screen flex-col items-center justify-center p-4 sm:p-8 md:p-12 lg:p-24 bg-gray-100">
-      <div className="w-full max-w-5xl">
-        <h1 className="text-3xl sm:text-4xl font-bold text-center mb-12 text-gray-800">Portfólio de Obras</h1>
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {loading ? (
-            <>
-              <SkeletonCard />
-              <SkeletonCard />
-              <SkeletonCard />
-            </>
-          ) : (
-            obras.map((obra) => (
-              <div key={obra.id} className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105">
-                <img src={obra.imagem} alt={obra.titulo} className="w-full h-56 object-cover" />
-                <div className="p-6">
-                  <h2 className="text-xl font-semibold text-gray-700">{obra.titulo}</h2>
-                </div>
-              </div>
-            ))
-          )}
-        </div>
-      </div>
-    </main>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <HeroSection />
+
+      <section id="portfolio">
+        <h2 className="text-3xl font-bold text-center mb-12 text-white">Nosso Portfólio</h2>
+        
+        {error && <p className="text-center text-red-400">{error}</p>}
+
+        {loading ? (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {Array.from({ length: 6 }).map((_, index) => <SkeletonCard key={index} />)}
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {obras.map(obra => <ObraCard key={obra.id} obra={obra} />)}
+          </div>
+        )}
+      </section>
+    </div>
   );
 }
