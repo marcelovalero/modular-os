@@ -6,7 +6,8 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
-    "commit-success": "git add . && git commit -m \"Feat: Galeria com dados reais da Berton funcionando\""
+    "commit-success": "git add . && git commit -m \"Feat: Galeria com dados reais da Berton funcionando\"",
+    "sync": "git add . && git commit -m 'Auto-sync: Layout atualizado' && git push"
   },
   "dependencies": {
     "axios": "^1.13.5",
