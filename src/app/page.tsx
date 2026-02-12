@@ -3,7 +3,7 @@
 
 import { useEffect, useState } from 'react';
 import { getObras, Obra } from '../services/databaseService';
-import SkeletonCard from '../components/SkeletonCard';
+import { SkeletonCard } from '../components/SkeletonCard'; // Correção: importação nomeada
 
 const HeroSection = () => (
   <section className="text-center py-20 md:py-32">
