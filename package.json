@@ -11,12 +11,15 @@
     "sync": "git add . && git commit -m 'Auto-sync: Layout atualizado' && git push"
   },
   "dependencies": {
+    "@hookform/resolvers": "^5.2.2",
     "axios": "^1.13.5",
     "cheerio": "^1.2.0",
     "firebase": "^12.9.0",
+    "framer-motion": "^12.34.0",
     "next": "16.0.8",
     "react": "19.2.1",
     "react-dom": "19.2.1",
+    "react-hook-form": "^7.71.1",
     "react-hot-toast": "^2.6.0",
     "zod": "^4.3.6"
   },
