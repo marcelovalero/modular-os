@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Header from "../components/Header"; // Importando o novo Header
+import { Toaster } from 'react-hot-toast'; // Importando o Toaster
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -28,6 +29,15 @@ export default function RootLayout({
   return (
     <html lang="pt-br">
       <body className={`${inter.className} bg-slate-900 text-white`}>
+        <Toaster 
+          position="bottom-right"
+          toastOptions={{
+            style: {
+              background: '#333',
+              color: '#fff',
+            },
+          }}
+        />
         <Header />
         <main className="pt-20"> {/* Adiciona padding no topo para não ficar sob o Header fixo */}
           {children}

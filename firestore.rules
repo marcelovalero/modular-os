@@ -1,12 +1,11 @@
+
 rules_version = '2';
+
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Permite que qualquer pessoa leia a coleção de obras.
-    match /obras/{obraId} {
+    match /{document=**} {
       allow read: if true;
-
-      // Apenas usuários autenticados podem escrever, atualizar ou deletar.
-      allow write, update, delete: if request.auth != null;
+      allow write: if request.auth != null;
     }
   }
 }

@@ -10,10 +10,9 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import toast from 'react-hot-toast';
 
-// Esquema de validação com Zod
 const obraSchema = z.object({
   titulo: z.string().min(1, { message: 'O título é obrigatório.' }),
-  imagem: z.string().url({ message: 'Por favor, insira uma URL de imagem válida.' }),
+  imagem: z.string().url({ message: 'Por favor, insira uma URL de imagem válida.' }).min(1, { message: 'A URL da imagem é obrigatória.' }),
 });
 
 type ObraForm = z.infer<typeof obraSchema>;
@@ -23,8 +22,9 @@ const EditObraPage = () => {
   const params = useParams();
   const id = params.id as string;
 
-  const { register, handleSubmit, reset, formState: { errors, isSubmitting } } = useForm<ObraForm>({
+  const { register, handleSubmit, reset, formState: { errors, isSubmitting, isValid } } = useForm<ObraForm>({
     resolver: zodResolver(obraSchema),
+    mode: 'onChange',
   });
 
   useEffect(() => {
@@ -32,7 +32,7 @@ const EditObraPage = () => {
       const fetchObra = async () => {
         try {
           const obra = await getObraById(id);
-          reset(obra); // Popula o formulário com os dados da obra
+          reset(obra); 
         } catch (err) {
           toast.error('Não foi possível carregar os dados da obra.');
           router.push('/admin');
@@ -87,8 +87,8 @@ const EditObraPage = () => {
           <div className="flex items-center justify-between">
             <button 
               type="submit" 
-              disabled={isSubmitting}
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-blue-300"
+              disabled={!isValid || isSubmitting}
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-gray-400 disabled:cursor-not-allowed"
             >
               {isSubmitting ? 'Salvando...' : 'Salvar Alterações'}
             </button>
