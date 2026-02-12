@@ -1,18 +1,20 @@
 
-import { initializeApp, getApps, getApp } from "firebase/app";
-import { getFirestore } from "firebase/firestore";
+import { initializeApp, getApps, getApp } from 'firebase/app';
+import { getFirestore } from 'firebase/firestore';
+import { getAuth } from 'firebase/auth'; // Import getAuth
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCt0i4YfmNf0bSJBYLCvKZcuejrST5fXk8",
-  authDomain: "modular-os.firebaseapp.com",
-  projectId: "modular-os",
-  storageBucket: "modular-os.firebasestorage.app",
-  messagingSenderId: "995088201685",
-  appId: "1:995088201685:web:3e1808b0c160d144156f5c"
+  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
+  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
+  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
 };
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 const db = getFirestore(app);
+const auth = getAuth(app); // Initialize and export auth
 
-export { app, db };
+export { app, db, auth };

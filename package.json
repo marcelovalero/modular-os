@@ -6,6 +6,7 @@
     "dev": "next dev",
     "build": "next build",
     "start": "next start",
+    "lint": "next lint",
     "commit-success": "git add . && git commit -m \"Feat: Galeria com dados reais da Berton funcionando\"",
     "sync": "git add . && git commit -m 'Auto-sync: Layout atualizado' && git push"
   },
