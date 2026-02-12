@@ -1,59 +1,42 @@
-'use client'
+
+'use client';
 
 import { useEffect, useState } from 'react';
 import { getObras } from '../services/databaseService';
-import type { Obra } from '../types/obra';
 
-export default function ObrasPage() {
+interface Obra {
+  id: string;
+  titulo: string;
+  imagem: string;
+}
+
+export default function Home() {
   const [obras, setObras] = useState<Obra[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null); // Estado para armazenar mensagens de erro
 
   useEffect(() => {
-    async function loadObras() {
-      try {
-        // A página agora só precisa chamar o serviço.
-        // Toda a complexidade de busca e validação está encapsulada.
-        const obrasData = await getObras();
-        setObras(obrasData);
-      } catch (err) {
-        // Se o serviço lançar um erro (ex: falha de conexão),
-        // capturamos a mensagem para exibir na UI.
-        if (err instanceof Error) {
-            setError(err.message);
-        } else {
-            setError("Ocorreu um erro desconhecido ao buscar as obras.");
-        }
-        console.error(err); // Log do erro original para fins de depuração
-      } finally {
-        setLoading(false);
-      }
-    }
+    const fetchObras = async () => {
+      const obrasList = await getObras();
+      setObras(obrasList as Obra[]);
+    };
 
-    loadObras();
-  }, []); // O array de dependências vazio garante que o efeito rode apenas uma vez
-
-  // Renderização condicional baseada nos estados
-  if (loading) {
-    return <div>Carregando galeria de obras...</div>;
-  }
-
-  if (error) {
-    return <div style={{ color: 'red', padding: '20px' }}>Erro ao carregar: {error}</div>;
-  }
+    fetchObras();
+  }, []);
 
   return (
-    <div>
-      <h1>Obras</h1>
-      {obras.length > 0 ? (
-        <ul>
+    <main className="flex min-h-screen flex-col items-center justify-center p-24 bg-gray-100">
+      <div className="w-full max-w-5xl">
+        <h1 className="text-4xl font-bold text-center mb-12 text-gray-800">Portfólio de Obras</h1>
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {obras.map((obra) => (
-            <li key={obra.id}>{obra.titulo}</li>
+            <div key={obra.id} className="bg-white rounded-lg shadow-lg overflow-hidden transition-all duration-300 hover:shadow-2xl hover:scale-105">
+              <img src={obra.imagem} alt={obra.titulo} className="w-full h-56 object-cover" />
+              <div className="p-6">
+                <h2 className="text-xl font-semibold text-gray-700">{obra.titulo}</h2>
+              </div>
+            </div>
           ))}
-        </ul>
-      ) : (
-        <p>Nenhuma obra encontrada. A galeria pode estar vazia ou os dados não puderam ser validados.</p>
-      )}
-    </div>
+        </div>
+      </div>
+    </main>
   );
 }

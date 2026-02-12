@@ -6,7 +6,7 @@ const firebaseConfig = {
   apiKey: "AIzaSyCt0i4YfmNf0bSJBYLCvKZcuejrST5fXk8",
   authDomain: "modular-os.firebaseapp.com",
   projectId: "modular-os",
-  storageBucket: "modular-os.appspot.com",
+  storageBucket: "modular-os.firebasestorage.app",
   messagingSenderId: "995088201685",
   appId: "1:995088201685:web:3e1808b0c160d144156f5c"
 };
