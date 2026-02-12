@@ -9,6 +9,7 @@ import {
   updateDoc,
   CollectionReference,
   DocumentData,
+  Timestamp, // Import Timestamp
 } from 'firebase/firestore';
 import { db } from '../lib/firebase';
 
@@ -16,6 +17,7 @@ import { db } from '../lib/firebase';
 export interface ObraData {
   titulo: string;
   imagem: string;
+  [key: string]: any; // Permite outras propriedades, como Timestamps
 }
 
 // Define um tipo para o documento da obra, incluindo seu ID.
@@ -27,21 +29,42 @@ export interface Obra extends ObraData {
 const obrasCollection: CollectionReference<DocumentData> = collection(db, 'obras');
 
 /**
- * Busca todas as obras da coleção.
- * @returns Uma Promise que resolve para um array de obras.
+ * Garante que todos os campos de um objeto de dados sejam serializáveis,
+ * convertendo Timestamps do Firebase em strings ISO.
+ * @param data O objeto de dados do Firestore.
+ * @returns Um novo objeto com os dados serializados.
+ */
+const ensureSerializable = (data: DocumentData): DocumentData => {
+  const serializableData: DocumentData = {};
+  for (const key in data) {
+    if (Object.prototype.hasOwnProperty.call(data, key)) {
+      const value = data[key];
+      if (value instanceof Timestamp) {
+        serializableData[key] = value.toDate().toISOString();
+      } else {
+        serializableData[key] = value;
+      }
+    }
+  }
+  return serializableData;
+};
+
+/**
+ * Busca todas as obras da coleção, garantindo a serialização dos dados.
+ * @returns Uma Promise que resolve para um array de obras serializadas.
  */
 export async function getObras(): Promise<Obra[]> {
   const querySnapshot = await getDocs(obrasCollection);
   return querySnapshot.docs.map((doc) => ({
     id: doc.id,
-    ...(doc.data() as ObraData),
+    ...(ensureSerializable(doc.data()) as ObraData),
   }));
 }
 
 /**
- * Busca uma única obra pelo seu ID.
+ * Busca uma única obra pelo seu ID, garantindo a serialização dos dados.
  * @param id O ID do documento da obra.
- * @returns Uma Promise que resolve para o objeto da obra.
+ * @returns Uma Promise que resolve para o objeto da obra serializada.
  */
 export async function getObraById(id: string): Promise<Obra> {
   const docRef = doc(obrasCollection, id);
@@ -50,7 +73,7 @@ export async function getObraById(id: string): Promise<Obra> {
   if (!docSnap.exists()) {
     throw new Error("A obra não foi encontrada.");
   }
-  return { id: docSnap.id, ...(docSnap.data() as ObraData) };
+  return { id: docSnap.id, ...(ensureSerializable(docSnap.data()) as ObraData) };
 }
 
 /**

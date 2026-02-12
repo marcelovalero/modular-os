@@ -1,6 +1,6 @@
 
 import { getObras } from '@/services/databaseService';
-import { Header } from '@/app/components/Header';
+import Header from '@/app/components/Header';
 import { Footer } from '@/app/components/Footer';
 import { Suspense } from 'react';
 import { SkeletonCard } from '@/app/components/SkeletonCard';
