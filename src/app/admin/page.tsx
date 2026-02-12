@@ -5,6 +5,7 @@ import withAuth from '../../../../components/withAuth';
 import { useEffect, useState } from 'react';
 import { getObras, deleteObra } from '../../../../services/databaseService';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast'; // Importando o toast
 
 // Reutilizando a interface definida no databaseService
 import type { Obra } from '../../../../services/databaseService';
@@ -12,7 +13,6 @@ import type { Obra } from '../../../../services/databaseService';
 const AdminPage = () => {
   const [obras, setObras] = useState<Obra[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const router = useRouter();
 
   const fetchObras = async () => {
@@ -21,7 +21,7 @@ const AdminPage = () => {
       const obrasList = await getObras();
       setObras(obrasList);
     } catch (err) {
-      setError('Falha ao carregar obras. Tente novamente mais tarde.');
+      toast.error('Falha ao carregar obras.');
       console.error(err);
     } finally {
       setLoading(false);
@@ -33,14 +33,18 @@ const AdminPage = () => {
   }, []);
 
   const handleDelete = async (id: string) => {
+    // Usando toast para confirmação é mais complexo, mantendo confirm por simplicidade e clareza de ação
     if (window.confirm('Tem certeza que deseja excluir esta obra?')) {
-      try {
-        await deleteObra(id);
-        setObras(obras.filter(obra => obra.id !== id));
-      } catch (err) {
-        setError('Falha ao excluir a obra.');
-        console.error(err);
-      }
+      const promise = deleteObra(id);
+
+      toast.promise(promise, {
+        loading: 'Excluindo obra...',
+        success: () => {
+          setObras(obras.filter(obra => obra.id !== id));
+          return 'Obra excluída com sucesso!';
+        },
+        error: 'Falha ao excluir a obra.',
+      });
     }
   };
 
@@ -60,8 +64,6 @@ const AdminPage = () => {
             Adicionar Nova Obra
           </button>
         </div>
-
-        {error && <p className="text-red-500 mb-4">{error}</p>}
 
         <div className="overflow-x-auto">
           {loading ? (

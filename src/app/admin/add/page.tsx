@@ -7,6 +7,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import { z } from 'zod';
 import { addObra } from '../../../services/databaseService';
 import { useRouter } from 'next/navigation';
+import toast from 'react-hot-toast'; // Importando o toast
 
 const obraSchema = z.object({
   titulo: z.string().min(1, 'Título é obrigatório'),
@@ -17,17 +18,26 @@ type ObraForm = z.infer<typeof obraSchema>;
 
 const AddObraPage = () => {
   const router = useRouter();
-  const { register, handleSubmit, formState: { errors } } = useForm<ObraForm>({
+  const { register, handleSubmit, formState: { errors, isSubmitting } } = useForm<ObraForm>({
     resolver: zodResolver(obraSchema),
   });
 
   const onSubmit = async (data: ObraForm) => {
-    try {
-      await addObra(data);
+    const promise = addObra(data);
+
+    await toast.promise(promise, {
+      loading: 'Salvando nova obra...',
+      success: 'Obra adicionada com sucesso!',
+      error: (err) => `Erro ao adicionar obra: ${err.message}`,
+    });
+
+    // Apenas redireciona se a operação for bem-sucedida
+    promise.then(() => {
       router.push('/admin');
-    } catch (error) {
-      console.error('Erro ao adicionar obra:', error);
-    }
+      router.refresh(); // Força a atualização dos dados na página de admin
+    }).catch(() => {
+      // O erro já é tratado pelo toast.promise
+    });
   };
 
   return (
@@ -61,10 +71,11 @@ const AddObraPage = () => {
           </div>
           <div className="flex items-center justify-between">
             <button
-              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline disabled:bg-blue-300"
               type="submit"
+              disabled={isSubmitting}
             >
-              Salvar Obra
+              {isSubmitting ? 'Salvando...' : 'Salvar Obra'}
             </button>
             <button
               className="bg-gray-500 hover:bg-gray-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
